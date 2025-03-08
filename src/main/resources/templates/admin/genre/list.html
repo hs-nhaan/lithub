@@ -1,0 +1,77 @@
+<div th:if="${error}" class="sufee-alert alert with-close alert-danger alert-dismissible fade show">
+    <span class="badge badge-pill badge-danger">Error</span>
+    <span th:text="${error}"></span>.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div th:if="${success}" class="sufee-alert alert with-close alert-success alert-dismissible fade show">
+    <span class="badge badge-pill badge-success">Success</span>
+    <span th:text="${success}"></span>.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="row mb-4">
+	<div class="col-md-12">
+		<form class="form-header" method="GET">
+            <input th:value="${keyword} ?: ''" class="au-input au-input--xl" type="text" name="keyword" placeholder="Search for datas &amp; reports..." />
+            <button class="au-btn--submit" type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+	</div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h3 class="title-5 m-b-35">Danh sách thể loại</h3>
+        <div class="table-responsive table-responsive-data2">
+            <table class="table table-data2">
+                <thead>
+                    <tr>
+                        <th>Tên thể loại</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="genre : ${genres}">
+                    <tr class="tr-shadow">
+                        <td th:text="${genre.getName()}"></td>
+                        <td>
+                            <div class="table-data-feature">
+                                <a th:href="@{/admin/genre/edit/{slug}(slug=${genre.getSlug()})}" 
+                                   class="item" data-toggle="tooltip" data-placement="top" title="Chỉnh sửa">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <a th:href="@{/admin/genre/delete/{slug}(slug=${genre.getSlug()})}" 
+                                   class="item" data-toggle="tooltip" data-placement="top" title="Xoá">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="spacer"></tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:if="${totalPage}" class="row">
+	<div class="col col-md-12">
+		<nav>
+			<ul th:with="query=${keyword != null ? '?keyword=' + keyword + '&' : '?'}" class="pagination justify-content-center">
+				<li th:if="${currentPage > 1}" class="page-item">
+					<a th:href="@{${query} + 'page=' + ${currentPage - 1}}" class="page-link"><<</a>
+				</li>
+				<li th:each="i : ${#numbers.sequence(1, totalPage)}" th:classappend="${currentPage == i ? 'active' : ''}" class="page-item">
+					<a th:text="${i}" th:href="@{${query} + 'page=' + ${i}}" class="page-link"></a>
+				</li>
+				<li th:if="${currentPage < totalPage}" class="page-item">
+					<a th:href="@{${query} + 'page=' + ${currentPage + 1}}" class="page-link">>></a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</div>

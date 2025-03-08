@@ -1,0 +1,71 @@
+<div th:if="${error}" class="sufee-alert alert with-close alert-danger alert-dismissible fade show">
+    <span class="badge badge-pill badge-danger">Error</span>
+    <span th:text="${error}"></span>.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div th:if="${success}" class="sufee-alert alert with-close alert-success alert-dismissible fade show">
+    <span class="badge badge-pill badge-success">Success</span>
+    <span th:text="${success}"></span>.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<div class="col-lg-12">
+	<div class="card">
+	    <div class="card-header">
+	        <strong>Thêm truyện</strong>
+	    </div>
+	    <div class="card-body card-block">
+	        <form action="/admin/story/create" method="post" enctype="multipart/form-data" class="form-horizontal">
+	            <div class="row form-group">
+	                <div class="col col-md-3">
+	                    <label for="title" class=" form-control-label">Tên truyện</label>
+	                </div>
+	                <div class="col-12 col-md-9">
+	                    <input type="text" id="text-input" name="title" placeholder="Text" class="form-control">
+	                </div>
+	            </div>
+	            <div class="row form-group">
+	                <div class="col col-md-3">
+	                    <label for="description" class=" form-control-label">Mô tả</label>
+	                </div>
+	                <div class="col-12 col-md-9">
+	                    <textarea name="description" id="textarea-input" rows="9" placeholder="Một chút về câu truyện..." class="form-control"></textarea>
+	                    <small class="help-block form-text">Không bắt buộc</small>
+	                </div>
+	            </div>
+	            <div class="row form-group">
+	                <div class="col col-md-3">
+	                    <label for="genreIds" class=" form-control-label">Thể loại</label>
+	                </div>
+	                <div class="col col-md-9">
+	                    <select name="genreIds" id="multiple-select" class="form-control" style="height: 200px;" multiple="multiple">
+	                    	<option th:each="genre : ${genres}" th:value="${genre.getId()}" th:text="${genre.getName()}"></option>
+	                    </select>
+	                    <small class="help-block form-text">Có thể chọn nhiều thể loại</small>
+	                </div>
+	            </div>
+	            <div class="row form-group">
+	                <div class="col col-md-3">
+	                    <label for="file" class=" form-control-label">Ảnh bìa</label>
+	                </div>
+	                <div class="col-12 col-md-9">
+	                    <input required type="file" id="file" name="file" class="form-control-file">
+	                </div>
+	            </div>
+	            <div class="row form-group">
+		            <div class="col col-md-3">
+		            	<button type="submit" class="btn btn-primary btn-sm">
+				            <i class="fa-solid fa-circle-dot"></i> Submit
+				        </button>
+		            </div>
+	            </div>
+	        </form>
+	    </div>
+	    <div class="card-footer">
+	    </div>
+	</div>
+</div>
