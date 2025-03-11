@@ -8,8 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,8 +22,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.hsnhaan.lithub.model.Genre;
 import com.hsnhaan.lithub.service.Implement.GenreServiceImpl;
 import com.hsnhaan.lithub.util.Config;
-import com.hsnhaan.lithub.util.StringHelper;
 
+import jakarta.validation.constraints.Min;
+
+@Validated
 @Controller
 public class GenreController {
 
@@ -32,14 +37,14 @@ public class GenreController {
 	}
 	
 	@GetMapping("/admin/genre")
-	public String list(Model model, @RequestParam(name = "keyword", required = false) String keyword,
-						@RequestParam(name = "page", defaultValue = "1") int page) {
+	public String list(Model model, @RequestParam(required = false) String keyword,
+						@RequestParam(defaultValue = "1") @Min(1) int page) {
 		Page<Genre> genres = null;
 		if (StringUtils.hasText(keyword)) {
 			genres = genreSvc.search(keyword, page, Config.resultPerAdminPage);
 			model.addAttribute("keyword", keyword);
 		}
-		else 
+		else
 			genres = genreSvc.getAll(page, Config.resultPerAdminPage);
 		
 		model.addAllAttributes(Map.of(
@@ -64,7 +69,7 @@ public class GenreController {
 	}
 	
 	@GetMapping("/admin/genre/edit/{slug}")
-	public String edit(Model model, @PathVariable("slug") String slug) {
+	public String edit(Model model, @PathVariable String slug) {
 		Genre genre = genreSvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		model.addAllAttributes(Map.of(
 			"titlePage", genre.getName(),
@@ -78,8 +83,6 @@ public class GenreController {
 	@PostMapping("/admin/genre/create")
 	public String create(RedirectAttributes redirectAttributes, @ModelAttribute Genre genre) {
 		try {
-			genre.setSlug(StringHelper.toSlug(genre.getName()));
-			genre.setName(StringHelper.toTitleCase(genre.getName()));
 			genreSvc.save(genre);
 			redirectAttributes.addFlashAttribute("success", "Thêm thể loại thành công");
 		} catch (RuntimeException ex) {
@@ -89,31 +92,31 @@ public class GenreController {
 		return "redirect:/admin/genre/add";
 	}
 	
-	@PostMapping("/admin/genre/update/{slug}")
+	@PatchMapping("/admin/genre/update/{slug}")
 	public String update(RedirectAttributes redirectAttributes, @ModelAttribute Genre genre,
-							@PathVariable("slug") String slug) {
-		Genre oldGenre = genreSvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		String oldSlug = oldGenre.getSlug();
+							@PathVariable String slug) {
 		try {
-			oldGenre.setSlug(StringHelper.toSlug(genre.getName()));
-			oldGenre.setName(StringHelper.toTitleCase(genre.getName()));
-			genreSvc.update(oldGenre);
+			genre = genreSvc.update(slug, genre.getName());
 			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa thể loại thành công");
 			
-			return "redirect:/admin/genre/edit/" + oldGenre.getSlug();
+			return "redirect:/admin/genre/edit/" + genre.getSlug();
+		} catch (ResponseStatusException ex) {
+			throw ex;
 		} catch (RuntimeException ex) {
 			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
 		}
 		
-		return "redirect:/admin/genre/edit/" + oldSlug;
+		return "redirect:/admin/genre/edit/" + slug;
 	}
 	
-	@GetMapping("/admin/genre/delete/{slug}")
-	public String delete(RedirectAttributes redirectAttributes, @PathVariable("slug") String slug) {
-		Genre genre = genreSvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+	@DeleteMapping("/admin/genre/delete/{slug}")
+	public String delete(RedirectAttributes redirectAttributes, @PathVariable String slug) {
+		System.out.println("đã được gọi");
 		try {
-			genreSvc.delete(genre);
+			genreSvc.delete(slug);
 			redirectAttributes.addFlashAttribute("success", "Xóa thể loại thành công");
+		} catch (ResponseStatusException ex) {
+			throw ex;
 		} catch (RuntimeException ex) {
 			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
 		}

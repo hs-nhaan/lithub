@@ -18,7 +18,7 @@ public interface IGenreService {
 	Page<Genre> search(String keyword, int page, int limit);
 	long countByIds(List<Integer> ids);
 	void save(Genre genre);
-	void update(Genre genre);
-	void delete(Genre genre);
+	Genre update(String slug, String name);
+	void delete(String slug);
 	
 }

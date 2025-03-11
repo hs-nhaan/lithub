@@ -14,47 +14,45 @@
 </div>
 
 <div class="row mb-4">
-	<div class="col-md-12 d-flex justify-content-between align-items-center">
+	<div class="col-md-12">
 		<form class="form-header" method="GET">
             <input th:value="${keyword} ?: ''" class="au-input au-input--xl" type="text" name="keyword" placeholder="Search for datas &amp; reports..." />
             <button class="au-btn--submit" type="submit">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
         </form>
-        <a th:href="@{/admin/chapter/{slug}/add(slug=${story.getSlug()})}" class="btn btn-success p-3"><i class="fa-solid fa-circle-plus text-white"></i></a>
 	</div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        <h3 class="title-5 m-b-35">Danh sách chương truyện <small th:text="${story.getTitle()}"></small></h3>
+        <h3 class="title-5 m-b-35">Danh sách người dùng</h3>
         <div class="table-responsive table-responsive-data2">
             <table class="table table-data2">
                 <thead>
                     <tr>
-                    	<th>Số chương</th>
-                        <th>Tiêu đề</th>
+                    	<th>Ảnh đại diện</th>
+                        <th>Tên người dùng</th>
+                        <th>Email</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                <th:block th:each="chapter : ${chapters}">
+                <th:block th:each="user : ${users}">
                     <tr class="tr-shadow">
-                    	<td th:text="${chapter.getChapter_number()}"></td>
-                        <td th:text="${chapter.getTitle()}"></td>
+                    	<td class="col-12 col-sm-6 col-md-4 col-lg-3">
+                    		<a th:href="@{/images/user/{image}(image=${user.getAvatar()})}">
+                    			<img th:src="@{/images/user/{image}(image=${user.getAvatar()})}" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                    		</a>
+                    	</td>
+                        <td th:text="${user.getUsername()}"></td>
+                        <td th:text="${user.getEmail()}"></td>
+                        <th th:text="${user.getVerified()} ? 'Đã xác thực' : 'Chưa xác thực'" th:class="${user.getVerified()} ? 'text-success' : 'text-danger'"></th>
                         <td>
                             <div class="table-data-feature">
-                            	<a th:href="@{/admin/chapter/{slug}/{number}(slug=${story.getSlug()}, number=${chapter.getChapter_number()})}" 
-                                   class="item" data-toggle="tooltip" data-placement="top" title="Xem chi tiết">
-                                    <i class="fa-solid fa-eye"></i>
+                                <a th:href="@{/admin/user/delete/{id}(id=${user.getId()})}" 
+                                   class="item" data-toggle="tooltip" data-placement="top" title="Xoá">
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </a>
-                                <a th:href="@{/admin/chapter/{slug}/edit/{number}(slug=${story.getSlug()}, number=${chapter.getChapter_number()})}" 
-                                   class="item" data-toggle="tooltip" data-placement="top" title="Chỉnh sửa">
-                                    <i class="fa-solid fa-pen"></i>
-                                </a>
-                                <form th:action="@{/admin/chapter/delete/{id}(id=${chapter.getId()})}" method="post">
-                                	<input type="hidden" name="_method" value="DELETE">
-                                	<button onclick="return confirm('Bạn có chắc muốn xóa chương này?');" class="item"><i class="fa-solid fa-trash-can"></i></button>
-                                </form>
                             </div>
                         </td>
                     </tr>

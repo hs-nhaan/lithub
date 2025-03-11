@@ -21,12 +21,13 @@
 	    <div class="card-body card-block">
 	    	<fieldset th:attr="disabled=${readOnly}">
 	        <form th:action="@{/admin/story/update/{slug}(slug=${story.getSlug()})}" method="post" enctype="multipart/form-data" class="form-horizontal">
+	        	<input type="hidden" name="_method" value="PATCH">
 	            <div class="row form-group">
 	                <div class="col col-md-3">
 	                    <label for="title" class="form-control-label">Tên truyện</label>
 	                </div>
 	                <div class="col-12 col-md-9">
-	                    <input type="text" th:value="${story.getTitle()}" id="text-input" name="title" placeholder="Text" class="form-control">
+	                    <input required="required" type="text" th:value="${story.getTitle()}" id="text-input" name="title" placeholder="Nhập tiêu đề truyện" class="form-control">
 	                </div>
 	            </div>
 	            <div class="row form-group">
@@ -34,7 +35,7 @@
 	                    <label for="description" class=" form-control-label">Mô tả</label>
 	                </div>
 	                <div class="col-12 col-md-9">
-	                    <textarea th:text="${story.getDescription()}" name="description" id="textarea-input" 
+	                    <textarea placeholder="Một chút về câu truyện..." th:text="${story.getDescription()}" name="description" id="textarea-input" 
 	                    		rows="9" class="form-control"></textarea>
 	                    <small th:if="!${readOnly}" class="help-block form-text">Không bắt buộc</small>
 	                </div>
@@ -44,7 +45,7 @@
 	                    <label for="genreIds" class=" form-control-label">Thể loại</label>
 	                </div>
 	                <div class="col col-md-9">
-	                    <select name="genreIds" id="multiple-select" class="form-control" style="height: 200px;" multiple="multiple">
+	                    <select required="required" name="genreIds" id="multiple-select" class="form-control" style="height: 200px;" multiple="multiple">
 	                    	<option th:each="genre : ${genres}" th:value="${genre.getId()}" 
 	                    			th:text="${genre.getName()}" th:selected="${story.getGenres().contains(genre)}"></option>
 	                    </select>

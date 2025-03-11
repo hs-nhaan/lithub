@@ -1,5 +1,6 @@
 package com.hsnhaan.lithub.service.Implement;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,12 +9,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.hsnhaan.lithub.dao.ChapterDAO;
 import com.hsnhaan.lithub.model.Chapter;
+import com.hsnhaan.lithub.model.Story;
 import com.hsnhaan.lithub.service.IChapterService;
+import com.hsnhaan.lithub.util.StringHelper;
 
 @Service
 public class ChapterServiceImpl implements IChapterService {
@@ -79,23 +84,28 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 
 	@Override
-	public void save(Chapter chapter) {
+	public void save(String slug, Chapter chapter) {
+		Story story = storySvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		chapter.setTitle(StringHelper.toTitleCase(chapter.getTitle()));
+		chapter.setChapter_number(chapterDAO.nextChapter(story.getId()));
+		chapter.setCreated_at(Instant.now());
+		chapter.setStory(story);
 		validate(chapter, true);
 		chapterDAO.save(chapter);
 	}
 
 	@Override
-	public void update(Chapter chapter) {
-		if (!chapterDAO.existsById(chapter.getId()))
-			throw new RuntimeException("Không tìm thấy chương truyện");
-		validate(chapter, false);
-		chapterDAO.save(chapter);
+	public Chapter update(int id, Chapter chapter) {
+		Chapter oldChapter = chapterDAO.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		oldChapter.setTitle(StringHelper.toTitleCase(chapter.getTitle()));
+		oldChapter.setContent(chapter.getContent());
+		validate(oldChapter, false);
+		return chapterDAO.save(oldChapter);
 	}
 
 	@Override
-	public void delete(Chapter chapter) {
-		if (!chapterDAO.existsById(chapter.getId()))
-			throw new RuntimeException("Không tìm thấy chương truyện");
+	public void delete(int id) {
+		Chapter chapter = chapterDAO.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		chapterDAO.delete(chapter);
 	}
 	
@@ -104,11 +114,8 @@ public class ChapterServiceImpl implements IChapterService {
 			throw new RuntimeException("Tiêu đề chương không được để trống");
 		if (!StringUtils.hasText(chapter.getContent()))
 			throw new RuntimeException("Nội dung không được để trống");
-		if (chapter.getStory() != null && !storySvc.existsById(chapter.getStory().getId()))
+		if (chapter.getStory() == null || !storySvc.existsById(chapter.getStory().getId()))
 			throw new RuntimeException("Không tìm thấy truyện");
-		if (isNew || !chapterDAO.findById(chapter.getId()).map(g -> g.getTitle().equals(chapter.getTitle())).orElse(false))
-			if (chapterDAO.existsByTitle(chapter.getTitle()))
-				throw new RuntimeException("Tiêu đề đã tồn tại");
 	}
 
 }

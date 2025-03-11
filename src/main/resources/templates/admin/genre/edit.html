@@ -20,12 +20,13 @@
 	    </div>
 	    <div class="card-body card-block">
 	        <form th:action="@{/admin/genre/update/{slug}(slug=${genre.getSlug()})}" method="post" class="form-horizontal">
+	        	<input type="hidden" name="_method" value="PATCH">
 	            <div class="row form-group">
 	                <div class="col col-md-3">
 	                    <label for="name" class="form-control-label">Tên thể loại</label>
 	                </div>
 	                <div class="col-12 col-md-9">
-	                    <input type="text" th:value="${genre.getName()}" id="text-input" name="name" class="form-control">
+	                    <input required="required" placeholder="Nhập tên thể loại" type="text" th:value="${genre.getName()}" id="text-input" name="name" class="form-control">
 	                </div>
 	            </div>
 	            <div class="row form-group">

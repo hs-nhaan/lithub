@@ -34,6 +34,7 @@
                         <th>Tên truyện</th>
                         <th>Thể loại</th>
                         <th>Chương truyện</th>
+                        <th>Bình luận & Đánh giá</th>
                         <th></th>
                     </tr>
                 </thead>
@@ -61,7 +62,19 @@
                                    class="item" data-toggle="tooltip" data-placement="top" title="Thêm chương truyện mới">
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </a>
-                            </div>             
+                            </div>
+                        </td>
+                        <td>
+                        	<div class="table-data-feature">
+                            	<a th:href="@{/admin/comment/{slug}(slug=${story.getSlug()})}" 
+                                   class="item" data-toggle="tooltip" data-placement="top" title="Xem danh sách bình luận">
+                                    <i class="fa-solid fa-comments"></i>
+                                </a>
+                                <a th:href="@{/admin/rating/{slug}/add(slug=${story.getSlug()})}" 
+                                   class="item" data-toggle="tooltip" data-placement="top" title="Xem danh sách đánh giá">
+                                    <i class="fa-solid fa-star"></i>
+                                </a>
+                            </div>
                         </td>
                         <td>
                             <div class="table-data-feature">
@@ -73,10 +86,10 @@
                                    class="item" data-toggle="tooltip" data-placement="top" title="Chỉnh sửa">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <a th:href="@{/admin/story/delete/{slug}(slug=${story.getSlug()})}" 
-                                   class="item" data-toggle="tooltip" data-placement="top" title="Xoá">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
+                                <form th:action="@{/admin/story/delete/{slug}(slug=${story.getSlug()})}" method="post">
+                                	<input type="hidden" name="_method" value="DELETE">
+                                	<button onclick="return confirm('Bạn có chắc muốn xóa truyện này?');" class="item"><i class="fa-solid fa-trash-can"></i></button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -87,7 +100,7 @@
         </div>
     </div>
 </div>
-<div th:if="${totalPage}" class="row">
+<div th:if="${totalPage > 0 && currentPage <= totalPage}" class="row">
 	<div class="col col-md-12">
 		<nav>
 			<ul th:with="query=${keyword != null ? '?keyword=' + keyword + '&' : '?'}" class="pagination justify-content-center">

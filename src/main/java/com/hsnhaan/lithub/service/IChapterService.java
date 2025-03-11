@@ -16,8 +16,8 @@ public interface IChapterService {
 	Page<Chapter> search(String keyword, int storyId, int page, int limit);
 	Page<Chapter> getByStoryId(int storyId, int page, int limit);
 	int nextChapter(int storyId);
-	void save(Chapter chapter);
-	void update(Chapter chapter);
-	void delete(Chapter chapter);
+	void save(String slug, Chapter chapter);
+	Chapter update(int id, Chapter chapter);
+	void delete(int id);
 	
 }

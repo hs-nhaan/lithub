@@ -44,10 +44,10 @@
                                    class="item" data-toggle="tooltip" data-placement="top" title="Chỉnh sửa">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <a th:href="@{/admin/genre/delete/{slug}(slug=${genre.getSlug()})}" 
-                                   class="item" data-toggle="tooltip" data-placement="top" title="Xoá">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
+                                <form th:action="@{/admin/genre/delete/{slug}(slug=${genre.getSlug()})}" method="post">
+                                	<input type="hidden" name="_method" value="DELETE">
+                                	<button onclick="return confirm('Bạn có chắc muốn xóa thể loại này?');" class="item"><i class="fa-solid fa-trash-can"></i></button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -58,7 +58,7 @@
         </div>
     </div>
 </div>
-<div th:if="${totalPage}" class="row">
+<div th:if="${totalPage > 0 && currentPage <= totalPage}" class="row">
 	<div class="col col-md-12">
 		<nav>
 			<ul th:with="query=${keyword != null ? '?keyword=' + keyword + '&' : '?'}" class="pagination justify-content-center">

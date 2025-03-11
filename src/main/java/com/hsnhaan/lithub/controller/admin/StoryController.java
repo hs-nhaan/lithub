@@ -1,11 +1,5 @@
 package com.hsnhaan.lithub.controller.admin;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -16,8 +10,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,8 +27,10 @@ import com.hsnhaan.lithub.model.Story;
 import com.hsnhaan.lithub.service.Implement.GenreServiceImpl;
 import com.hsnhaan.lithub.service.Implement.StoryServiceImpl;
 import com.hsnhaan.lithub.util.Config;
-import com.hsnhaan.lithub.util.StringHelper;
 
+import jakarta.validation.constraints.Min;
+
+@Validated
 @Controller
 public class StoryController {
 
@@ -45,8 +44,8 @@ public class StoryController {
 	}
 	
 	@GetMapping("/admin/story")
-	public String list(Model model, @RequestParam(name = "page", defaultValue = "1") int page,
-						@RequestParam(name = "keyword", required = false) String keyword) {
+	public String list(Model model, @RequestParam(defaultValue = "1") @Min(1) int page,
+						@RequestParam(required = false) String keyword) {
 		Page<Story> stories = null;
 		if (StringUtils.hasText(keyword)) {
 			stories = storySvc.search(keyword, page, Config.resultPerAdminPage);
@@ -78,7 +77,7 @@ public class StoryController {
 	}
 	
 	@GetMapping("/admin/story/edit/{slug}")
-	public String edit(Model model, @PathVariable("slug") String slug) {
+	public String edit(Model model, @PathVariable String slug) {
 		Story story = storySvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		model.addAllAttributes(Map.of(
 			"titlePage", story.getTitle(),
@@ -91,7 +90,7 @@ public class StoryController {
 	}
 	
 	@GetMapping("/admin/story/{slug}")
-	public String view(Model model, @PathVariable("slug") String slug) {
+	public String view(Model model, @PathVariable String slug) {
 		Story story = storySvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		model.addAllAttributes(Map.of(
 			"titlePage", story.getTitle(),
@@ -106,95 +105,52 @@ public class StoryController {
 	
 	@PostMapping("/admin/story/create")
 	public String create(RedirectAttributes redirectAttributes, @ModelAttribute Story story,
-							@RequestParam(name = "file", required = false) MultipartFile file,
-							@RequestParam(name = "genreIds", required = false) List<Integer> genreIds,
+							@RequestParam(required = false) MultipartFile file,
+							@RequestParam(required = false) List<Integer> genreIds,
 							@Value("${upload.dir}") String uploadDir) {
-		story.setSlug(StringHelper.toSlug(story.getTitle()));
-		story.setTitle(StringHelper.toTitleCase(story.getTitle()));
-		story.setGenres(new HashSet<Genre>(genreSvc.getByIds(genreIds)));
-		story.setCreated_at(Instant.now());
-		story.setViews(0);
-		story.setStatus(false);
+		
 		try {
-			saveCoverImage(file, uploadDir, story);
-			storySvc.save(story);
+			storySvc.save(story, file, genreIds, uploadDir);
 			redirectAttributes.addFlashAttribute("success", "Thêm truyện thành công");
 		} catch (RuntimeException ex) {
-			removeCoverImage(uploadDir, story.getCover_image());
 			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
 		}
 		
 		return "redirect:/admin/story/add";
 	}
 	
-	@PostMapping("/admin/story/update/{slug}")
+	@PatchMapping("/admin/story/update/{slug}")
 	public String update(RedirectAttributes redirectAttributes, @ModelAttribute Story story,
-							@RequestParam(name = "file", required = false) MultipartFile file,
-							@RequestParam(name = "genreIds", required = false) List<Integer> genreIds,
-							@PathVariable("slug") String slug,
+							@RequestParam(required = false) MultipartFile file,
+							@RequestParam(required = false) List<Integer> genreIds,
+							@PathVariable String slug,
 							@Value("${upload.dir}") String uploadDir) {
-		Story oldStory = storySvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		String oldSlug = oldStory.getSlug();
-		String oldCoverImage = oldStory.getCover_image();
-		try {
-			oldStory.setSlug(StringHelper.toSlug(story.getTitle()));
-			oldStory.setTitle(StringHelper.toTitleCase(story.getTitle()));
-			oldStory.setGenres(new HashSet<Genre>(genreSvc.getByIds(genreIds)));
-			if (file != null && !file.isEmpty()) {
-				saveCoverImage(file, uploadDir, oldStory);
-				if (!oldCoverImage.equals(oldStory.getCover_image()))
-					removeCoverImage(uploadDir, oldCoverImage);
-			}
-			storySvc.update(oldStory);
-			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa truyện thành công");
-			return "redirect:/admin/story/edit/" + oldStory.getSlug();
-		} catch (RuntimeException ex) {
-			if (file != null && !file.isEmpty()) {
-				removeCoverImage(uploadDir, oldStory.getCover_image());
-			}
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		return  "redirect:/admin/story/edit/" + oldSlug;
-	}
-	
-	@GetMapping("/admin/story/delete/{slug}")
-	public String delete(RedirectAttributes redirectAttributes, @PathVariable("slug") String slug,
-							@Value("${upload.dir}") String uploadDir) {
-		try {
-			Story story = storySvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-			storySvc.delete(story);
-			removeCoverImage(uploadDir, story.getCover_image());
-			redirectAttributes.addFlashAttribute("success", "Xóa truyện thành công");
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
 		
+		try {
+			story = storySvc.update(slug, story, file, genreIds, uploadDir);
+			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa truyện thành công");
+			return "redirect:/admin/story/edit/" + story.getSlug();
+		} catch (ResponseStatusException ex) {
+			throw ex;
+		}  catch (RuntimeException ex) {
+			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
+		}
+		return  "redirect:/admin/story/edit/" + slug;
+	}
+	
+	@DeleteMapping("/admin/story/delete/{slug}")
+	public String delete(RedirectAttributes redirectAttributes, @PathVariable String slug,
+							@Value("${upload.dir}") String uploadDir) {
+		try {
+			storySvc.delete(slug, uploadDir);
+			redirectAttributes.addFlashAttribute("success", "Xóa truyện thành công");
+		} catch (ResponseStatusException ex) {
+			throw ex;
+		} catch (RuntimeException ex) {
+			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
+		}
+
 		return "redirect:/admin/story";
-	}
-	
-	private void saveCoverImage(MultipartFile file, String uploadDir, Story story) {
-		Path storyDir = Paths.get(uploadDir, "story");
-		try {
-			String fileName = story.getSlug() + "." + StringUtils.getFilenameExtension(file.getOriginalFilename());
-			Path filePath = storyDir.resolve(fileName);
-			story.setCover_image(fileName);
-			if (!Files.exists(storyDir))
-				Files.createDirectories(storyDir);
-			file.transferTo(filePath.toFile());
-			story.setCover_image(fileName);
-		} catch (IOException ex) {
-			throw new RuntimeException("Có lỗi khi tải ảnh lên");
-		}
-	}
-	
-	private void removeCoverImage(String uploadDir, String coverImage) {
-		Path storyDir = Paths.get(uploadDir, "story");
-		Path filePath = Paths.get(storyDir.toString(), coverImage);
-		try {
-			Files.deleteIfExists(filePath);
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
 	}
 	
 }

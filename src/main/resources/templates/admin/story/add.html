@@ -25,7 +25,7 @@
 	                    <label for="title" class=" form-control-label">Tên truyện</label>
 	                </div>
 	                <div class="col-12 col-md-9">
-	                    <input type="text" id="text-input" name="title" placeholder="Text" class="form-control">
+	                    <input required="required" type="text" id="text-input" name="title" placeholder="Nhập tiêu đề truyện" class="form-control">
 	                </div>
 	            </div>
 	            <div class="row form-group">
@@ -42,7 +42,7 @@
 	                    <label for="genreIds" class=" form-control-label">Thể loại</label>
 	                </div>
 	                <div class="col col-md-9">
-	                    <select name="genreIds" id="multiple-select" class="form-control" style="height: 200px;" multiple="multiple">
+	                    <select required="required" name="genreIds" id="multiple-select" class="form-control" style="height: 200px;" multiple="multiple">
 	                    	<option th:each="genre : ${genres}" th:value="${genre.getId()}" th:text="${genre.getName()}"></option>
 	                    </select>
 	                    <small class="help-block form-text">Có thể chọn nhiều thể loại</small>

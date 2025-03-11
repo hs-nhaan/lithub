@@ -8,12 +8,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.hsnhaan.lithub.dao.GenreDAO;
 import com.hsnhaan.lithub.model.Genre;
 import com.hsnhaan.lithub.service.IGenreService;
+import com.hsnhaan.lithub.util.StringHelper;
 
 @Service
 public class GenreServiceImpl implements IGenreService {
@@ -76,22 +79,24 @@ public class GenreServiceImpl implements IGenreService {
 
 	@Override
 	public void save(Genre genre) {
+		genre.setSlug(StringHelper.toSlug(genre.getName()));
+		genre.setName(StringHelper.toTitleCase(genre.getName()));
 		validate(genre, true);
 		genreDAO.save(genre);
 	}
 
 	@Override
-	public void update(Genre genre) {
-		if (!genreDAO.existsById(genre.getId()))
-			throw new RuntimeException("Không tìm thấy thể loại");
+	public Genre update(String slugS, String name) {
+		Genre genre = Optional.ofNullable(genreDAO.findBySlug(slugS)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		genre.setSlug(StringHelper.toSlug(name));
+		genre.setName(StringHelper.toTitleCase(name));
 		validate(genre, false);
-		genreDAO.save(genre);
+		return genreDAO.save(genre);
 	}
 
 	@Override
-	public void delete(Genre genre) {
-		if (!genreDAO.existsById(genre.getId()))
-			throw new RuntimeException("Không tìm thấy thể loại");
+	public void delete(String slug) {
+		Genre genre = Optional.ofNullable(genreDAO.findBySlug(slug)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		genreDAO.delete(genre);
 	}
 	
