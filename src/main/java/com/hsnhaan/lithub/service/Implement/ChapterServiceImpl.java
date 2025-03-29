@@ -1,12 +1,9 @@
 package com.hsnhaan.lithub.service.Implement;
 
-import java.time.Instant;
-import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,7 +23,6 @@ public class ChapterServiceImpl implements IChapterService {
 	private final ChapterDAO chapterDAO;
 	private final StoryServiceImpl storySvc;
 	
-	@Autowired
 	public ChapterServiceImpl(ChapterDAO chapterDAO, StoryServiceImpl storySvc) {
 		this.chapterDAO = chapterDAO;
 		this.storySvc = storySvc;
@@ -41,41 +37,17 @@ public class ChapterServiceImpl implements IChapterService {
 	public Optional<Chapter> getByNumber(int chapterNumber, int storyId) {
 		return chapterDAO.findByChapter_number(chapterNumber, storyId);
 	}
-
-	@Override
-	public List<Chapter> search(String keyword, int storyId) {
-		return chapterDAO.search(keyword, storyId);
-	}
 	
 	@Override
-	public List<Chapter> getByStoryId(int storyId) {
-		return chapterDAO.findByStoryId(storyId);
-	}
-
-	@Override
 	public Page<Chapter> search(String keyword, int storyId, int page, int limit) {
-		List<Chapter> chapters = search(keyword, storyId);
-		
 		Pageable pageable = PageRequest.of(page - 1, limit);
-		int start = (int) pageable.getOffset();
-		int end = Math.min(start + pageable.getPageSize(), chapters.size());
-		
-		List<Chapter> subChapters = chapters.subList(start, end);
-		
-		return new PageImpl<Chapter>(subChapters, pageable, chapters.size());
+		return chapterDAO.search(keyword, storyId, pageable);
 	}
 	
 	@Override
 	public Page<Chapter> getByStoryId(int storyId, int page, int limit) {
-		List<Chapter> chapters = getByStoryId(storyId);
-		
 		Pageable pageable = PageRequest.of(page - 1, limit);
-		int start = (int) pageable.getOffset();
-		int end = Math.min(start + pageable.getPageSize(), chapters.size());
-		
-		List<Chapter> subChapters = chapters.subList(start, end);
-		
-		return new PageImpl<Chapter>(subChapters, pageable, chapters.size());
+		return chapterDAO.findByStoryId(storyId, pageable);
 	}
 
 	@Override
@@ -85,10 +57,10 @@ public class ChapterServiceImpl implements IChapterService {
 
 	@Override
 	public void save(String slug, Chapter chapter) {
-		Story story = storySvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Story story = storySvc.getBySlug(slug).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy truyện"));
 		chapter.setTitle(StringHelper.toTitleCase(chapter.getTitle()));
 		chapter.setChapter_number(chapterDAO.nextChapter(story.getId()));
-		chapter.setCreated_at(Instant.now());
+		chapter.setCreated_at(LocalDate.now());
 		chapter.setStory(story);
 		validate(chapter, true);
 		chapterDAO.save(chapter);
@@ -110,12 +82,12 @@ public class ChapterServiceImpl implements IChapterService {
 	}
 	
 	private void validate(Chapter chapter, boolean isNew) {
-		if (!StringUtils.hasText(chapter.getTitle()))
-			throw new RuntimeException("Tiêu đề chương không được để trống");
+		if (!StringUtils.hasText(chapter.getTitle()) || chapter.getTitle().length() > 255)
+			throw new IllegalArgumentException("Tiêu đề chương không hợp lệ");
 		if (!StringUtils.hasText(chapter.getContent()))
-			throw new RuntimeException("Nội dung không được để trống");
-		if (chapter.getStory() == null || !storySvc.existsById(chapter.getStory().getId()))
-			throw new RuntimeException("Không tìm thấy truyện");
+			throw new IllegalArgumentException("Nội dung không được để trống");
+		if (isNew && chapter.getStory().getStatus())
+			throw new IllegalArgumentException("Không thể thêm chương cho truyện đã hoàn thành");
 	}
 
 }

@@ -20,6 +20,7 @@
 	    </div>
 	    <div class="card-body card-block">
 	        <form action="/admin/genre/create" method="post" class="form-horizontal">
+	        	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 	            <div class="row form-group">
 	                <div class="col col-md-3">
 	                    <label for="name" class="form-control-label">Tên thể loại</label>

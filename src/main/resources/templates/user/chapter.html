@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.ord">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="/user/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/user/css/app.css">
+    <title th:text="'Chương ' + ${chapter.chapter_number} + ' - ' + ${chapter.title}"></title>
+    <link rel="icon" href="/images/logo/logo.png" type="image/png">
+</head>
+
+<body>
+	<div th:replace="~{@{user/layouts/header}}"></div>
+    <main style="min-height: 70vh;">
+        <div class="chapter-wrapper container my-5">
+            <a th:href="@{/{slug}(slug=${story.slug})}" class="text-decoration-none">
+                <h1 th:text="${story.title}" class="text-center text-success"></h1>
+            </a>
+            <a class="text-decoration-none">
+                <p th:text="'Chương ' + ${chapter.chapter_number} + ' - ' + ${chapter.title}" class="text-center text-dark"></p>
+            </a>
+            <hr class="chapter-start container-fluid">
+            <div class="chapter-nav text-center">
+                <div class="chapter-actions chapter-actions-origin d-flex align-items-center justify-content-center">
+                    <a th:unless="${chapter.chapter_number == 1}" class="btn btn-success me-1 chapter-prev"
+                        th:href="@{/{slug}/{number}(slug=${story.slug}, number=${chapter.chapter_number - 1})}"> <span>Chương
+                        </span>trước</a>
+                    <a th:href="@{/{slug}/{number}(slug=${story.slug}, number=${chapter.chapter_number + 1})}" 
+                    	th:unless="${chapter.chapter_number == story.chapterCount}" class="btn btn-success chapter-next"><span>Chương
+                        </span>tiếp</a>
+                </div>
+            </div>
+            <hr class="chapter-end container-fluid">
+            <div class="chapter-content mb-3 lh-lg" th:text="${chapter.content}">
+                
+            </div>
+            <hr class="chapter-end container-fluid">
+            <div class="chapter-nav text-center">
+                <div class="chapter-actions chapter-actions-origin d-flex align-items-center justify-content-center">
+                    <a th:unless="${chapter.chapter_number == 1}" class="btn btn-success me-1 chapter-prev"
+                        th:href="@{/{slug}/{number}(slug=${story.slug}, number=${chapter.chapter_number - 1})}"> <span>Chương
+                        </span>trước</a>
+                    <a th:href="@{/{slug}/{number}(slug=${story.slug}, number=${chapter.chapter_number + 1})}" 
+                    	th:unless="${chapter.chapter_number == story.chapterCount}" class="btn btn-success chapter-next"><span>Chương
+                        </span>tiếp</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="chapter-actions chapter-actions-mobile d-flex align-items-center justify-content-center">
+            <a class="btn btn-success me-2 chapter-prev"
+                href="#" title=""> <span>Chương
+                </span>trước</a>
+            <button class="btn btn-success chapter_jump me-2" data-story-id="3" data-slug-chapter="chuong-1"
+                data-slug-story="nang-khong-muon-lam-hoang-hau"><span>
+
+                    <svg style="fill: #fff;" xmlns="http://www.w3.org/2000/svg" height="1em"
+                        viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+                        <path
+                            d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z">
+                        </path>
+                    </svg>
+                </span></button>
+
+            <div class="dropup select-chapter me-2 d-none">
+                <a class="btn btn-secondary dropdown-toggle" role="button"
+                    id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    Chọn chương
+                </a>
+
+                <ul class="dropdown-menu select-chapter__list" aria-labelledby="dropdownMenuLink">
+
+                </ul>
+            </div>
+            <a class="btn btn-success chapter-next" href="#"
+                title=""><span>Chương </span>tiếp</a>
+        </div>
+    </main>
+    
+    <div th:replace="~{@{user/layouts/footer}}"></div>
+    
+    <script src="/user/js/jquery.min.js"></script>
+    <script src="/user/js/popper.min.js"></script>
+    <script src="/user/js/bootstrap.min.js"></script>
+    <script src="/user/js/app.js"></script>
+    <script src="/user/js/common.js"></script>
+    <script src="/user/js/chapter.js"></script>
+</body>
+</html>

@@ -3,7 +3,6 @@ package com.hsnhaan.lithub.controller.admin;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,7 @@ import com.hsnhaan.lithub.service.Implement.GenreServiceImpl;
 import com.hsnhaan.lithub.service.Implement.StoryServiceImpl;
 import com.hsnhaan.lithub.util.Config;
 
-import jakarta.validation.constraints.Min;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Validated
 @Controller
@@ -37,21 +36,21 @@ public class StoryController {
 	private final StoryServiceImpl storySvc;
 	private final GenreServiceImpl genreSvc;
 	
-	@Autowired
 	public StoryController(StoryServiceImpl storySvc, GenreServiceImpl genreSvc) {
 		this.storySvc = storySvc;
 		this.genreSvc = genreSvc;
 	}
 	
 	@GetMapping("/admin/story")
-	public String list(Model model, @RequestParam(defaultValue = "1") @Min(1) int page,
+	public String list(Model model, @RequestParam(defaultValue = "1") int page,
 						@RequestParam(required = false) String keyword) {
-		Page<Story> stories = null;
+		page = page < 1 ? 1 : page;
+		Page<Story> stories;
 		if (StringUtils.hasText(keyword)) {
-			stories = storySvc.search(keyword, page, Config.resultPerAdminPage);
+			stories = storySvc.search(keyword, page, Config.resultOnAdminPage);
 			model.addAttribute("keyword", keyword);
 		} else
-			stories = storySvc.getAll(page, Config.resultPerAdminPage);
+			stories = storySvc.getAll(page, Config.resultOnAdminPage);
 		
 		model.addAllAttributes(Map.of(
 			"titlePage", "Danh sách truyện",
@@ -99,7 +98,7 @@ public class StoryController {
 			"genres", genreSvc.getAll(),
 			"readOnly", true
 		));
-		
+
 		return "admin/index";
 	}
 	
@@ -108,14 +107,8 @@ public class StoryController {
 							@RequestParam(required = false) MultipartFile file,
 							@RequestParam(required = false) List<Integer> genreIds,
 							@Value("${upload.dir}") String uploadDir) {
-		
-		try {
-			storySvc.save(story, file, genreIds, uploadDir);
-			redirectAttributes.addFlashAttribute("success", "Thêm truyện thành công");
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		
+		storySvc.save(story, file, genreIds, uploadDir);
+		redirectAttributes.addFlashAttribute("success", "Thêm truyện thành công");
 		return "redirect:/admin/story/add";
 	}
 	
@@ -125,32 +118,17 @@ public class StoryController {
 							@RequestParam(required = false) List<Integer> genreIds,
 							@PathVariable String slug,
 							@Value("${upload.dir}") String uploadDir) {
-		
-		try {
-			story = storySvc.update(slug, story, file, genreIds, uploadDir);
-			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa truyện thành công");
-			return "redirect:/admin/story/edit/" + story.getSlug();
-		} catch (ResponseStatusException ex) {
-			throw ex;
-		}  catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		return  "redirect:/admin/story/edit/" + slug;
+		story = storySvc.update(slug, story, file, genreIds, uploadDir);
+		redirectAttributes.addFlashAttribute("success", "Chỉnh sửa truyện thành công");
+		return "redirect:/admin/story/edit/" + story.getSlug();
 	}
 	
 	@DeleteMapping("/admin/story/delete/{slug}")
-	public String delete(RedirectAttributes redirectAttributes, @PathVariable String slug,
+	public String delete(HttpServletRequest req, RedirectAttributes redirectAttributes, @PathVariable String slug,
 							@Value("${upload.dir}") String uploadDir) {
-		try {
-			storySvc.delete(slug, uploadDir);
-			redirectAttributes.addFlashAttribute("success", "Xóa truyện thành công");
-		} catch (ResponseStatusException ex) {
-			throw ex;
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-
-		return "redirect:/admin/story";
+		storySvc.delete(slug, uploadDir);
+		redirectAttributes.addFlashAttribute("success", "Xóa truyện thành công");
+	    return "redirect:" + req.getHeader("Referer");
 	}
 	
 }

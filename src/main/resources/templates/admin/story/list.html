@@ -42,23 +42,23 @@
                 <th:block th:each="story : ${stories}">
                     <tr class="tr-shadow">
                     	<td class="col-12 col-sm-6 col-md-4 col-lg-3">
-                    		<a th:href="@{/images/story/{image}(image=${story.getCover_image()})}">
-                    			<img th:src="@{/images/story/{image}(image=${story.getCover_image()})}" class="img-thumbnail" width="100">
+                    		<a th:href="@{/images/story/{image}(image=${story.cover_image})}">
+                    			<img th:src="@{/images/story/{image}(image=${story.cover_image})}" class="img-thumbnail" width="100">
                     		</a>
                     	</td>
-                        <td th:text="${story.getTitle()}"></td>
+                        <td th:text="${story.title}"></td>
                         <td>
-                        <th:block th:each="genre, status : ${story.getGenres()}">
-                        	<span th:text="${genre.getName()}"></span><span th:if="!${status.last}">, </span>
+                        <th:block th:each="genre, status : ${story.genres}">
+                        	<span th:text="${genre.name}"></span><span th:if="!${status.last}">, </span>
                        	</th:block>
                         </td>
                         <td>
                        		<div class="table-data-feature">
-                            	<a th:href="@{/admin/chapter/{slug}(slug=${story.getSlug()})}" 
+                            	<a th:href="@{/admin/chapter/{slug}(slug=${story.slug})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Xem danh sách chương truyện">
                                     <i class="fa-solid fa-list"></i>
                                 </a>
-                                <a th:href="@{/admin/chapter/{slug}/add(slug=${story.getSlug()})}" 
+                                <a th:href="@{/admin/chapter/{slug}/add(slug=${story.slug})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Thêm chương truyện mới">
                                     <i class="fa-solid fa-circle-plus"></i>
                                 </a>
@@ -66,11 +66,11 @@
                         </td>
                         <td>
                         	<div class="table-data-feature">
-                            	<a th:href="@{/admin/comment/{slug}(slug=${story.getSlug()})}" 
+                            	<a th:href="@{/admin/comment/{slug}(slug=${story.slug})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Xem danh sách bình luận">
                                     <i class="fa-solid fa-comments"></i>
                                 </a>
-                                <a th:href="@{/admin/rating/{slug}/add(slug=${story.getSlug()})}" 
+                                <a th:href="@{/admin/rating/{slug}(slug=${story.slug})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Xem danh sách đánh giá">
                                     <i class="fa-solid fa-star"></i>
                                 </a>
@@ -78,15 +78,16 @@
                         </td>
                         <td>
                             <div class="table-data-feature">
-                            	<a th:href="@{/admin/story/{slug}(slug=${story.getSlug()})}" 
+                            	<a th:href="@{/admin/story/{slug}(slug=${story.slug})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Xem chi tiết">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                <a th:href="@{/admin/story/edit/{slug}(slug=${story.getSlug()})}" 
+                                <a th:href="@{/admin/story/edit/{slug}(slug=${story.slug})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Chỉnh sửa">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <form th:action="@{/admin/story/delete/{slug}(slug=${story.getSlug()})}" method="post">
+                                <form th:if="${session.ADMIN_SESSION.role == 'SUPER_ADMIN'}" th:action="@{/admin/story/delete/{slug}(slug=${story.slug})}" method="post">
+                                	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                 	<input type="hidden" name="_method" value="DELETE">
                                 	<button onclick="return confirm('Bạn có chắc muốn xóa truyện này?');" class="item"><i class="fa-solid fa-trash-can"></i></button>
                                 </form>
@@ -101,19 +102,37 @@
     </div>
 </div>
 <div th:if="${totalPage > 0 && currentPage <= totalPage}" class="row">
-	<div class="col col-md-12">
-		<nav>
-			<ul th:with="query=${keyword != null ? '?keyword=' + keyword + '&' : '?'}" class="pagination justify-content-center">
-				<li th:if="${currentPage > 1}" class="page-item">
-					<a th:href="@{${query} + 'page=' + ${currentPage - 1}}" class="page-link"><<</a>
-				</li>
-				<li th:each="i : ${#numbers.sequence(1, totalPage)}" th:classappend="${currentPage == i ? 'active' : ''}" class="page-item">
+    <div class="col col-md-12">
+        <nav>
+            <ul th:with="query=${keyword != null ? '?keyword=' + keyword + '&' : '?'}" class="pagination justify-content-center">
+
+                <li th:if="${currentPage > 1}" class="page-item">
+                    <a th:href="@{${query} + 'page=' + ${currentPage - 1}}" class="page-link"><<</a>
+                </li>
+
+                <li th:if="${currentPage > 3}" class="page-item">
+                    <a th:text="1" th:href="@{${query} + 'page=' + 1}" class="page-link"></a>
+                </li>
+                <li th:if="${currentPage > 4}" class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+
+                <li th:each="i : ${#numbers.sequence((currentPage - 2 >= 1) ? (currentPage - 2) : 1, (currentPage + 2 <= totalPage) ? (currentPage + 2) : totalPage)}"
+					th:classappend="${currentPage == i ? 'active' : ''}" class="page-item">
 					<a th:text="${i}" th:href="@{${query} + 'page=' + ${i}}" class="page-link"></a>
 				</li>
-				<li th:if="${currentPage < totalPage}" class="page-item">
-					<a th:href="@{${query} + 'page=' + ${currentPage + 1}}" class="page-link">>></a>
-				</li>
-			</ul>
-		</nav>
-	</div>
+
+                <li th:if="${currentPage < totalPage - 3}" class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                <li th:if="${currentPage < totalPage - 2}" class="page-item">
+                    <a th:text="${totalPage}" th:href="@{${query} + 'page=' + ${totalPage}}" class="page-link"></a>
+                </li>
+
+                <li th:if="${currentPage < totalPage}" class="page-item">
+                    <a th:href="@{${query} + 'page=' + ${currentPage + 1}}" class="page-link">>></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>

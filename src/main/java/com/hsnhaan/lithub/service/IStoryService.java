@@ -13,9 +13,11 @@ public interface IStoryService {
 	List<Story> getAll();
 	Story getById(int id);
 	Optional<Story> getBySlug(String slug);
-	List<Story> search(String keyword);
 	Page<Story> getAll(int page, int limit);
 	Page<Story> search(String keyword, int page, int limit);
+	Page<Story> getNewStory(int page, int limit);
+	Page<Story> getByStatusTrue(int page, int limit);
+	Page<Story> getByGenreId(int genreId, int page, int limit);
 	void save(Story story, MultipartFile file, List<Integer> genreIds, String uploadDir);
 	Story update(String slug, Story story, MultipartFile file, List<Integer> genreIds, String uploadDir);
 	void delete(String slug, String uploadDir);

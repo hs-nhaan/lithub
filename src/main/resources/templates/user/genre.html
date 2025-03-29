@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.ord">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link href="/user/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/user/css/app.css">
+	<link rel="icon" href="/images/logo/logo.png" type="image/x-icon">
+    <title th:text="${genre.name}"></title>
+</head>
+
+<body>
+	<div th:replace="~{@{user/layouts/header}}"></div>
+    <main style="min-height: 70vh;">
+        <div class="container">
+            <div class="row align-items-start">
+                <div class="col-12 col-md-8 col-lg-9 mb-3">
+                    <div class="head-title-global d-flex justify-content-between mb-2">
+                        <div class="col-12 col-md-12 col-lg-12 head-title-global__left d-flex">
+                            <h2 class="me-2 mb-0 border-bottom border-secondary pb-1">
+                                <span th:text="${genre.name}" class="d-block text-decoration-none text-dark fs-4 category-name"></span>
+                            </h2>
+							<h5 class="d-block" th:text="'Có ' + ${genre.stories.size()} + ' truyện thuộc thể loại này'"></h5>
+                        </div>
+                    </div>
+                    <div class="list-story-in-category section-stories-hot__list">
+                        <div th:each="story : ${stories}" class="story-item">
+                            <a th:href="@{/{slug}(slug=${story.slug})}" class="d-block text-decoration-none">
+                                <div class="story-item__image">
+                                    <img th:src="@{/images/story/{image}(image=${story.cover_image})}" class="img-fluid" style="height:173px" loading="lazy">
+                                </div>
+                                <h3 class="story-item__name text-one-row story-name" th:text="${story.title}"></h3>
+
+                                <div class="list-badge">
+                                    <span th:if="${story.status}" class="story-item__badge badge text-bg-success">Full</span>
+                                    <span 
+                                    	class="story-item__badge story-item__badge-new badge text-bg-info text-light"
+                                    	 th:if="${story.new}">New</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div th:if="${totalPage > 0 && currentPage <= totalPage}" class="pagination" style="justify-content: center;">
+                        <ul>
+                        	<li th:if="${currentPage > 1}" class="pagination__item">
+                                <a class="page-link story-ajax-paginate"
+                                   th:href="@{?page={page}(page=${currentPage - 1})}" style="cursor: pointer;"><<</a>
+                            </li>
+                            <li th:if="${currentPage > 3}" class="pagination__item">
+                                <a class="page-link story-ajax-paginate"
+                                   th:href="@{?page=1}" style="cursor: pointer;">1</a>
+                            </li>
+                            <li th:if="${currentPage > 4}" class="pagination__item disabled">
+                                <span class="page-link story-ajax-paginate">...</span>
+                            </li>
+                            <li th:each="i : ${#numbers.sequence((currentPage - 2 >= 1) ? (currentPage - 2) : 1, (currentPage + 2 <= totalPage) ? (currentPage + 2) : totalPage)}" class="pagination__item"
+                            		th:classappend="${currentPage == i ? 'page-current' : ''}">
+                                <a th:text="${i}" class="page-link story-ajax-paginate"
+                                   th:href="@{?page={page}(page=${i})}" style="cursor: pointer;"></a>
+                            </li>
+                            <li th:if="${currentPage < totalPage - 3}" class="pagination__item disabled">
+                                <span class="page-link story-ajax-paginate">...</span>
+                            </li>
+                            <li th:if="${currentPage < totalPage - 2}" class="pagination__item">
+                                <a class="page-link story-ajax-paginate" th:text="${totalPage}"
+                                   th:href="@{?page={page}(page=${totalPage})}" style="cursor: pointer;"></a>
+                            </li>
+                            <li th:if="${currentPage < totalPage}" class="pagination__item">
+                                <a class="page-link story-ajax-paginate"
+                                   th:href="@{?page={page}(page=${currentPage + 1})}" style="cursor: pointer;">>></a>
+                            </li>
+                      	</ul>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4 col-lg-3 sticky-md-top">
+                    <div class="section-list-category bg-light p-2 rounded card-custom">
+	                    <div class="head-title-global mb-2">
+	                        <div class="col-12 col-md-12 head-title-global__left">
+	                            <h2 class="mb-0 border-bottom border-secondary pb-1">
+	                                <span href="#" class="d-block text-decoration-none text-dark fs-4"
+	                                    title="Truyện đang đọc">Thể loại truyện</span>
+	                            </h2>
+	                        </div>
+	                    </div>
+	                    <div class="row">
+	                        <ul class="list-category">
+	                            <li th:each="genre : ${genres}" class="">
+	                                <a th:href="@{/the-loai/{slug}(slug=${genre.slug})}"
+	                                th:text="${genre.name}" class="text-decoration-none text-dark hover-title"></a>
+	                            </li>
+	                        </ul>
+	                    </div>
+	                </div>
+                </div>
+            </div>
+        </div>
+    </main>
+	<div th:replace="~{@{user/layouts/footer}}"></div>
+    <script src="/user/js/jquery.min.js"></script>
+    <script src="/user/js/popper.min.js"></script>
+    <script src="/user/js/bootstrap.min.js"></script>
+    <script src="/user/js/app.js"></script>
+    <script src="/user/js/common.js"></script>
+</body>
+</html>

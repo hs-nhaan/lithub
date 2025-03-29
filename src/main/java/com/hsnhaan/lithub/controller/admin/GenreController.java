@@ -2,7 +2,6 @@ package com.hsnhaan.lithub.controller.admin;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -23,7 +22,7 @@ import com.hsnhaan.lithub.model.Genre;
 import com.hsnhaan.lithub.service.Implement.GenreServiceImpl;
 import com.hsnhaan.lithub.util.Config;
 
-import jakarta.validation.constraints.Min;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Validated
 @Controller
@@ -31,21 +30,21 @@ public class GenreController {
 
 	private final GenreServiceImpl genreSvc;
 	
-	@Autowired
 	public GenreController(GenreServiceImpl genreSvc) {
 		this.genreSvc = genreSvc;
 	}
 	
 	@GetMapping("/admin/genre")
 	public String list(Model model, @RequestParam(required = false) String keyword,
-						@RequestParam(defaultValue = "1") @Min(1) int page) {
-		Page<Genre> genres = null;
+						@RequestParam(defaultValue = "1") int page) {
+		page = page < 1 ? 1 : page;
+		Page<Genre> genres;
 		if (StringUtils.hasText(keyword)) {
-			genres = genreSvc.search(keyword, page, Config.resultPerAdminPage);
+			genres = genreSvc.search(keyword, page, Config.resultOnAdminPage);
 			model.addAttribute("keyword", keyword);
 		}
 		else
-			genres = genreSvc.getAll(page, Config.resultPerAdminPage);
+			genres = genreSvc.getAll(page, Config.resultOnAdminPage);
 		
 		model.addAllAttributes(Map.of(
 			"titlePage" , "Danh sách thể loại",
@@ -82,46 +81,24 @@ public class GenreController {
 	
 	@PostMapping("/admin/genre/create")
 	public String create(RedirectAttributes redirectAttributes, @ModelAttribute Genre genre) {
-		try {
-			genreSvc.save(genre);
-			redirectAttributes.addFlashAttribute("success", "Thêm thể loại thành công");
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		
+		genreSvc.save(genre);
+		redirectAttributes.addFlashAttribute("success", "Thêm thể loại thành công");
 		return "redirect:/admin/genre/add";
 	}
 	
 	@PatchMapping("/admin/genre/update/{slug}")
 	public String update(RedirectAttributes redirectAttributes, @ModelAttribute Genre genre,
 							@PathVariable String slug) {
-		try {
-			genre = genreSvc.update(slug, genre.getName());
-			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa thể loại thành công");
-			
-			return "redirect:/admin/genre/edit/" + genre.getSlug();
-		} catch (ResponseStatusException ex) {
-			throw ex;
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		
-		return "redirect:/admin/genre/edit/" + slug;
+		genre = genreSvc.update(slug, genre.getName());
+		redirectAttributes.addFlashAttribute("success", "Chỉnh sửa thể loại thành công");
+		return "redirect:/admin/genre/edit/" + genre.getSlug();
 	}
 	
 	@DeleteMapping("/admin/genre/delete/{slug}")
-	public String delete(RedirectAttributes redirectAttributes, @PathVariable String slug) {
-		System.out.println("đã được gọi");
-		try {
-			genreSvc.delete(slug);
-			redirectAttributes.addFlashAttribute("success", "Xóa thể loại thành công");
-		} catch (ResponseStatusException ex) {
-			throw ex;
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		
-		return "redirect:/admin/genre";
+	public String delete(RedirectAttributes redirectAttributes, HttpServletRequest req, @PathVariable String slug) {
+		genreSvc.delete(slug);
+		redirectAttributes.addFlashAttribute("success", "Xóa thể loại thành công");
+	    return "redirect:" + req.getHeader("Referer");
 	}
 	
 }

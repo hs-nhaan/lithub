@@ -12,12 +12,12 @@ public interface IUserService {
 	List<User> getAll();
 	User getById(int id);
 	Optional<User> getByEmail(String email);
-	List<User> search(String keyword);
 	Page<User> getAll(int page, int limit);
 	Page<User> search(String keyword, int page, int limit);
-	void save(User user);
-	void update(User user);
-	void delete(User user);
+	void save(String email, String username, String password, String rePassword);
+	void changePassword(String email, String password);
+	void delete(int id);
 	boolean existsById(int id);
+	void verify(String token);
 	
 }

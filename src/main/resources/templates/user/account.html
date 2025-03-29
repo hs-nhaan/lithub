@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.ord">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link href="/user/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="user/css/app.css">
+	<link rel="icon" href="/images/logo/logo.png" type="image/x-icon">
+    <title>Thông tin tài khoản</title>
+    <style type="text/css">
+    /* Custom CSS */
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex: 1;
+        }
+        .user-info-card {
+            max-width: 500px;
+            margin: 2rem auto;
+        }
+	</style>
+</head>
+
+<body>
+	<th:block th:if="${success}">
+		<script type="text/javascript">
+			alert('Đổi mật khẩu thành công');
+		</script>
+	</th:block>
+    <div th:replace="~{@{user/layouts/header}}"></div>
+    <main class="main-content py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="text-center mb-4">Thông tin tài khoản</h2>
+                    
+                    <div class="card user-info-card shadow">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Thông tin cơ bản</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Username</label>
+                                <p th:text="${user.username}" class="form-control-plaintext"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Email</label>
+                                <p th:text="${user.email}" class="form-control-plaintext"></p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Vai trò</label>
+                                <p class="form-control-plaintext">
+                                    <span class="badge bg-success">Người dùng</span>
+                                </p>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Trạng thái</label>
+                                <p class="form-control-plaintext">
+                                    <span class="badge bg-success">Đã xác thực</span>
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-end mt-4">
+                                <a href="/tai-khoan/doi-mat-khau" class="btn btn-primary me-2">Đổi mật khẩu</a>
+                                <a href="/dang-xuat" class="btn btn-danger">Đăng xuất</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+	<div th:replace="~{@{user/layouts/footer}}"></div>
+    <script src="user/js/jquery.min.js"></script>
+    <script src="user/js/popper.min.js"></script>
+    <script src="user/js/bootstrap.min.js"></script>
+    <script src="user/js/app.js"></script>
+    <script src="user/js/common.js"></script>
+</body>
+</html>

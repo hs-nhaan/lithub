@@ -16,8 +16,8 @@ public class User {
 	private String username;
 	private String password;
 	private String email;
-	private String avatar;
 	private boolean verified;
+	private String verification_token;
 	
 	public User() {}
 
@@ -52,14 +52,6 @@ public class User {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-
-	public String getAvatar() {
-		return avatar;
-	}
-
-	public void setAvatar(String avatar) {
-		this.avatar = avatar;
-	}
 	
 	public boolean getVerified() {
 		return verified;
@@ -67,6 +59,14 @@ public class User {
 	
 	public void setVerified(boolean verified) {
 		this.verified = verified;
+	}
+
+	public String getVerification_token() {
+		return verification_token;
+	}
+
+	public void setVerification_token(String verification_token) {
+		this.verification_token = verification_token;
 	}
 	
 }

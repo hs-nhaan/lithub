@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.ord">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link href="/user/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/user/css/app.css">
+    <link rel="shortcut icon" href="/images/logo/logo.png" type="image/x-icon">
+    <title th:text="${story.title}"></title>
+</head>
+
+<body>
+	<th:block th:if="${success}">
+		<script type="text/javascript">
+			alert('Thêm bình luận thành công');
+		</script>
+	</th:block>
+	<th:block th:if="${error}">
+		<script type="text/javascript">
+			alert('Đã có lỗi xảy ra');
+		</script>
+	</th:block>
+	<div th:replace="~{@{user/layouts/header}}"></div>
+    <main style="min-height: 70vh;">
+        <input type="hidden" id="story_slug" value="nang-khong-muon-lam-hoang-hau">
+        <div class="container">
+            <div class="row align-items-start">
+                <div class="col-12 col-md-7 col-lg-8">
+                    <div class="head-title-global d-flex justify-content-between mb-4">
+                        <div class="col-12 col-md-12 col-lg-4 head-title-global__left d-flex">
+                            <h2 class="me-2 mb-0 border-bottom border-secondary pb-1">
+                                <span class="d-block text-decoration-none text-dark fs-4 title-head-name"
+                                    title="Thông tin truyện">Thông tin truyện</span>
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="story-detail">
+                        <div class="story-detail__top d-flex align-items-start">
+                            <div class="row align-items-start">
+                                <div class="col-12 col-md-12 col-lg-3 story-detail__top--image">
+                                    <div class="book-3d">
+                                        <img th:src="@{/images/story/{image}(image=${story.cover_image})}"
+                                            class="img-fluid w-100" width="200" height="300" loading="lazy">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-12 col-lg-9">
+                                    <h3 th:text="${story.title}" class="text-center story-name"></h3>
+                                    <div class="rate-story mb-2">
+                                        <div class="rate-story__value" itemprop="aggregateRating" >
+                                            <em>Đánh giá:
+                                                <strong>
+                                                    <span th:text="${story.totalRating}"></span>
+                                                </strong>
+                                                /
+                                                <span class="">10</span>
+                                                từ
+                                                <strong>
+                                                    <span th:text="${story.ratingCount}"></span>
+                                                    lượt
+                                                </strong>
+                                            </em>
+                                        </div>
+                                    </div>
+                                    <div class="px-3" th:text="${story.description}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="story-detail__bottom mb-3">
+                            <div class="row">
+                                <div class="col-12 col-md-12 col-lg-3 story-detail__bottom--info">
+                                    <div class="d-flex align-items-center mb-1 flex-wrap">
+                                        <strong class="me-1">Thể loại:</strong>
+                                        <div class="d-flex align-items-center flex-warp">
+                                        	<th:block th:each="genre, start : ${story.genres}">
+                                            <a th:text="${genre.name}" th:if="${start.index < 3}" 
+                                            	th:href="@{/the-loai/{slug}(slug=${genre.slug})}"
+                                                class="text-decoration-none text-dark hover-title  me-1 "
+                                                style="width: max-content;">
+                                            </a>
+                                            <span th:if="${start.index < 2}">, </span>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                    <p class="mb-1">
+                                        <strong>Trạng thái:</strong>
+                                        <span th:text="${story.status ? 'Đã hoàn thành' : 'Đang đợi chương mới'}" class="text-info"></span>
+                                    </p>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="story-detail__list-chapter">
+                            <div class="head-title-global d-flex justify-content-between mb-4">
+                                <div class="col-6 col-md-12 col-lg-4 head-title-global__left d-flex">
+                                    <h2 class="me-2 mb-0 border-bottom border-secondary pb-1">
+                                        <span href="#"
+                                            class="d-block text-decoration-none text-dark fs-4 title-head-name"
+                                            title="Truyện hot">Danh sách chương</span>
+                                    </h2>
+                                </div>
+                            </div>
+
+                            <div class="story-detail__list-chapter--list">
+                                <div class="row">
+                                    <div class="col-12 col-sm-6 col-lg-6 story-detail__list-chapter--list__item">
+                                        <ul>
+                                            <li th:each="chapter : ${chapters}">
+                                                <a th:href="@{/{slug}/{number}(slug=${story.slug}, number=${chapter.chapter_number})}" th:text="'Chương ' + ${chapter.chapter_number} + ': ' + ${chapter.title}"
+                                                    class="text-decoration-none text-dark hover-title"></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+						<div th:if="${totalPage > 0 && currentPage <= totalPage}" class="pagination" style="justify-content: center;">
+	                        <ul>
+	                        	<li th:if="${currentPage > 1}" class="pagination__item">
+	                                <a class="page-link story-ajax-paginate"
+	                                   th:href="@{?page={page}(page=${currentPage - 1})}" style="cursor: pointer;"><<</a>
+	                            </li>
+	                            <li th:if="${currentPage > 3}" class="pagination__item">
+	                                <a class="page-link story-ajax-paginate"
+	                                   th:href="@{?page=1}" style="cursor: pointer;">1</a>
+	                            </li>
+	                            <li th:if="${currentPage > 4}" class="pagination__item disabled">
+	                                <span class="page-link story-ajax-paginate">...</span>
+	                            </li>
+	                            <li th:each="i : ${#numbers.sequence((currentPage - 2 >= 1) ? (currentPage - 2) : 1, (currentPage + 2 <= totalPage) ? (currentPage + 2) : totalPage)}" class="pagination__item"
+	                            		th:classappend="${currentPage == i ? 'page-current' : ''}">
+	                                <a th:text="${i}" class="page-link story-ajax-paginate"
+	                                   th:href="@{?page={page}(page=${i})}" style="cursor: pointer;"></a>
+	                            </li>
+	                            <li th:if="${currentPage < totalPage - 3}" class="pagination__item disabled">
+	                                <span class="page-link story-ajax-paginate">...</span>
+	                            </li>
+	                            <li th:if="${currentPage < totalPage - 2}" class="pagination__item">
+	                                <a class="page-link story-ajax-paginate" th:text="${totalPage}"
+	                                   th:href="@{?page={page}(page=${totalPage})}" style="cursor: pointer;"></a>
+	                            </li>
+	                            <li th:if="${currentPage < totalPage}" class="pagination__item">
+	                                <a class="page-link story-ajax-paginate"
+	                                   th:href="@{?page={page}(page=${currentPage + 1})}" style="cursor: pointer;">>></a>
+	                            </li>
+	                      	</ul>
+	                    </div>
+                    </div>
+                    <div class="comment-section mt-5">
+					    <div class="head-title-global d-flex justify-content-between mb-4">
+					        <div class="col-12 col-md-12 col-lg-4 head-title-global__left d-flex">
+					            <h2 class="me-2 mb-0 border-bottom border-secondary pb-1">
+					                <span class="d-block text-decoration-none text-dark fs-4 title-head-name"
+					                    title="Bình luận và đánh giá">Bình luận và đánh giá</span>
+					            </h2>
+					        </div>
+					    </div>
+					
+					    <form th:action="@{/{slug}/comment(slug=${story.slug})}" method="post" class="comment-form">
+					        <div class="mb-3">
+					            <label for="rating" class="form-label">Đánh giá:</label>
+					            <select class="form-control" id="rating" name="rating" required>
+					                <option value="1">1 điểm</option>
+					                <option value="2">2 điểm</option>
+					                <option value="3">3 điểm</option>
+					                <option value="4">4 điểm</option>
+					                <option value="5">5 điểm</option>
+					                <option value="6">6 điểm</option>
+					                <option value="7">7 điểm</option>
+					                <option value="8">8 điểm</option>
+					                <option value="9">9 điểm</option>
+					                <option value="10">10 điểm</option>
+					            </select>
+					        </div>
+					        <div class="mb-3">
+					            <label for="content" class="form-label">Bình luận:</label>
+					            <textarea class="form-control" id="content" name="content" rows="3" required></textarea>
+					        </div>
+					        <button type="submit" class="btn btn-primary">Gửi bình luận</button>
+					    </form>
+					
+					    <div class="comments-list mt-5">
+					        <h3 class="mb-3">Các bình luận khác:</h3>
+					        <div th:each="comment : ${comments}" class="comment-item mb-3">
+					            <div class="comment-header d-flex justify-content-between">
+					                <strong th:text="${comment.user.username}"></strong>
+					            </div>
+					            <div class="comment-body">
+					                <p th:text="${comment.content}"></p>
+					            </div>
+					        </div>
+					    </div>
+					</div>
+                </div>
+
+                <div class="col-12 col-md-5 col-lg-4 sticky-md-top">
+                    <div class="section-list-category bg-light p-2 rounded card-custom">
+                        <div class="head-title-global mb-2">
+                            <div class="col-12 col-md-12 head-title-global__left">
+                                <h2 class="mb-0 border-bottom border-secondary pb-1">
+                                    <span href="#" class="d-block text-decoration-none text-dark fs-4"
+                                        title="Truyện đang đọc">Thể loại truyện</span>
+                                </h2>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <!-- Horizontal under breakpoint -->
+                            <ul class="list-category">
+                                <li th:each="genre : ${genres}" class="">
+                                    <a th:href="@{/the-loai/{slug}(slug=${genre.slug})}"
+                                        th:text="${genre.name}" class="text-decoration-none text-dark hover-title"></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+	<div th:replace="~{@{user/layouts/footer}}"></div>
+
+    <script src="/user/js/jquery.min.js"></script>
+    <script src="/user/js/popper.min.js"></script>
+    <script src="/user/js/bootstrap.min.js"></script>
+    <script src="/user/js/app.js"></script>
+    <script src="/user/js/common.js"></script>
+</body>
+
+</html>

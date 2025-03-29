@@ -1,0 +1,19 @@
+<div id="footer" class="footer border-top pt-2">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-5">
+                <strong>LitHub</strong> - 
+                <a title="Đọc truyện online" class="text-dark text-decoration-none"
+                    href="#">Đọc truyện</a>
+                     online, giải trí sau một ngày dài căng thẳng.
+            </div>
+            <ul class="col-12 col-md-7 list-unstyled d-flex flex-wrap list-tag">
+                <li th:each="genre : ${genres}" class="me-1">
+                    <span class="badge text-bg-light">
+                    	<a class="text-dark text-decoration-none" th:href="@{/the-loai/{slug}(slug=${genre.slug})}" th:text="${genre.name}" title="đam mỹ hài"></a>
+                   	</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

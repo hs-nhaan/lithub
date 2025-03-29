@@ -1,6 +1,6 @@
 package com.hsnhaan.lithub.model;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -23,14 +24,17 @@ public class Story {
 	private String title;
 	private String description;
 	private String cover_image;
-	private int views;
-	private Instant created_at;
+	private LocalDate created_at;
 	private boolean status;
 	private String slug;
 	@ManyToMany
 	@JoinTable(name = "story_genre", joinColumns = @JoinColumn(name = "story_id"),
 					inverseJoinColumns = @JoinColumn(name = "genre_id"))
 	private Set<Genre> genres = new HashSet<Genre>();
+	@OneToMany(mappedBy = "story")
+	private Set<Rating> ratings = new HashSet<Rating>();
+	@OneToMany(mappedBy = "story")
+	private Set<Chapter> chapters = new HashSet<Chapter>();
 	
 	public Story() {}
 
@@ -66,19 +70,11 @@ public class Story {
 		this.cover_image = cover_image;
 	}
 
-	public int getViews() {
-		return views;
-	}
-
-	public void setViews(int views) {
-		this.views = views;
-	}
-
-	public Instant getCreated_at() {
+	public LocalDate getCreated_at() {
 		return created_at;
 	}
 
-	public void setCreated_at(Instant created_at) {
+	public void setCreated_at(LocalDate created_at) {
 		this.created_at = created_at;
 	}
 
@@ -97,13 +93,41 @@ public class Story {
 	public void setSlug(String slug) {
 		this.slug = slug;
 	}
-
+	
 	public Set<Genre> getGenres() {
 		return genres;
 	}
 
 	public void setGenres(Set<Genre> genres) {
 		this.genres = genres;
+	}
+	
+	public float getTotalRating() {
+		if (ratings != null && !ratings.isEmpty())
+			return (float) ratings.stream().mapToDouble(Rating::getRating).average().orElse(0.0f);
+		return 0.0f;
+	}
+	
+	public long getRatingCount() {
+		return ratings.size();
+	}
+
+	public Set<Chapter> getChapters() {
+		return chapters;
+	}
+
+	public void setChapters(Set<Chapter> chapters) {
+		this.chapters = chapters;
+	}
+	
+	public boolean isNew() {
+		if (created_at == null)
+			return false;
+		return created_at.isAfter(LocalDate.now().minusMonths(6));
+	}
+	
+	public long getChapterCount() {
+		return chapters.size();
 	}
 	
 }

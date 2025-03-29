@@ -16,10 +16,11 @@
 <div class="col-lg-12">
 	<div class="card">
 	    <div class="card-header">
-	        <strong>Thêm chương truyện</strong><p th:text="${story.getTitle()}"></p>
+	        <strong>Thêm chương truyện</strong><p th:text="${story.title}"></p>
 	    </div>
 	    <div class="card-body card-block">
-	        <form th:action="@{/admin/chapter/{slug}/create(slug=${story.getSlug()})}" method="post" class="form-horizontal">
+	        <form th:action="@{/admin/chapter/{slug}/create(slug=${story.slug})}" method="post" class="form-horizontal">
+	        	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 	            <div class="row form-group">
 	                <div class="col col-md-3">
 	                    <label for="title" class="form-control-label">Tiêu đề</label>

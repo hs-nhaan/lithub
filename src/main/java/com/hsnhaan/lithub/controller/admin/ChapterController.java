@@ -24,7 +24,7 @@ import com.hsnhaan.lithub.service.Implement.ChapterServiceImpl;
 import com.hsnhaan.lithub.service.Implement.StoryServiceImpl;
 import com.hsnhaan.lithub.util.Config;
 
-import jakarta.validation.constraints.Min;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Validated
 @Controller
@@ -39,16 +39,18 @@ public class ChapterController {
 	}
 	
 	@GetMapping("/admin/chapter/{slug}")
-	public String list(Model model, @PathVariable String slug, @RequestParam(defaultValue = "1") @Min(1) int page,
+	public String list(Model model, @PathVariable String slug, 
+						@RequestParam(defaultValue = "1") int page,
 						@RequestParam(required = false) String keyword) {
 		Story story = storySvc.getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-		Page<Chapter> chapters = null;
+		page = page < 1 ? 1 : page;
+		Page<Chapter> chapters;
 		
 		if (StringUtils.hasText(keyword)) {
-			chapters = chapterSvc.search(keyword, story.getId(), page, Config.resultPerAdminPage);
+			chapters = chapterSvc.search(keyword, story.getId(), page, Config.resultOnAdminPage);
 			model.addAttribute("keyword", keyword);
 		} else
-			chapters = chapterSvc.getByStoryId(story.getId(), page, Config.resultPerAdminPage);
+			chapters = chapterSvc.getByStoryId(story.getId(), page, Config.resultOnAdminPage);
 		
 		model.addAllAttributes(Map.of(
 			"titlePage", "Danh sách chương truyện",
@@ -107,47 +109,24 @@ public class ChapterController {
 	@PostMapping("/admin/chapter/{slug}/create")
 	public String create(RedirectAttributes redirectAttributes, @ModelAttribute Chapter chapter,
 							@PathVariable String slug) {
-		try {
-			
-			chapterSvc.save(slug, chapter);
-			redirectAttributes.addFlashAttribute("success", "Thêm chương thành công");
-		} catch (ResponseStatusException ex) {
-			throw ex;
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		
+		chapterSvc.save(slug, chapter);
+		redirectAttributes.addFlashAttribute("success", "Thêm chương truyện thành công");
 		return "redirect:/admin/chapter/" + slug + "/add";
 	}
 	
 	@PatchMapping("/admin/chapter/update/{id}")
 	public String update(RedirectAttributes redirectAttributes, @PathVariable int id,
 							@ModelAttribute Chapter chapter) {
-		try {
-			chapter = chapterSvc.update(id, chapter);
-			redirectAttributes.addFlashAttribute("success", "Chỉnh sửa chương thành công");
-			return "redirect:/admin/chapter/" + chapter.getStory().getSlug() + "/edit/" + chapter.getChapter_number();
-		} catch (ResponseStatusException ex) {
-			throw ex;
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		chapter = chapterSvc.getById(id);
+		chapter = chapterSvc.update(id, chapter);
+		redirectAttributes.addFlashAttribute("success", "Chỉnh sửa chương truyện thành công");
 		return "redirect:/admin/chapter/" + chapter.getStory().getSlug() + "/edit/" + chapter.getChapter_number();
 	}
 	
 	@DeleteMapping("/admin/chapter/delete/{id}")
-	public String delete(RedirectAttributes redirectAttributes, @PathVariable int id) {
-		Chapter chapter = chapterSvc.getById(id);
-		try {
-			chapterSvc.delete(id);
-			redirectAttributes.addFlashAttribute("success", "Xóa chương truyện thành công");
-		} catch (ResponseStatusException ex) {
-			throw ex; 
-		} catch (RuntimeException ex) {
-			redirectAttributes.addFlashAttribute("error", "Lỗi: " + ex.getMessage());
-		}
-		return "redirect:/admin/chapter/" + chapter.getStory().getSlug();
+	public String delete(HttpServletRequest req, RedirectAttributes redirectAttributes, @PathVariable int id) {
+		chapterSvc.delete(id);
+		redirectAttributes.addFlashAttribute("success", "Xóa chương truyện thành công");
+	    return "redirect:" + req.getHeader("Referer");
 	}
 	
 }

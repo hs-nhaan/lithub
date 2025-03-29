@@ -26,7 +26,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <h3 class="title-5 m-b-35">Danh sách chương truyện <small th:text="${story.getTitle()}"></small></h3>
+        <h3 class="title-5 m-b-35">Danh sách chương truyện - <small th:text="${story.title}"></small></h3>
         <div class="table-responsive table-responsive-data2">
             <table class="table table-data2">
                 <thead>
@@ -39,19 +39,20 @@
                 <tbody>
                 <th:block th:each="chapter : ${chapters}">
                     <tr class="tr-shadow">
-                    	<td th:text="${chapter.getChapter_number()}"></td>
+                    	<td th:text="${chapter.chapter_number}"></td>
                         <td th:text="${chapter.getTitle()}"></td>
                         <td>
                             <div class="table-data-feature">
-                            	<a th:href="@{/admin/chapter/{slug}/{number}(slug=${story.getSlug()}, number=${chapter.getChapter_number()})}" 
+                            	<a th:href="@{/admin/chapter/{slug}/{number}(slug=${story.slug}, number=${chapter.chapter_number})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Xem chi tiết">
                                     <i class="fa-solid fa-eye"></i>
                                 </a>
-                                <a th:href="@{/admin/chapter/{slug}/edit/{number}(slug=${story.getSlug()}, number=${chapter.getChapter_number()})}" 
+                                <a th:href="@{/admin/chapter/{slug}/edit/{number}(slug=${story.slug}, number=${chapter.chapter_number})}" 
                                    class="item" data-toggle="tooltip" data-placement="top" title="Chỉnh sửa">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <form th:action="@{/admin/chapter/delete/{id}(id=${chapter.getId()})}" method="post">
+                                <form th:action="@{/admin/chapter/delete/{id}(id=${chapter.id})}" method="post">
+                                	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                 	<input type="hidden" name="_method" value="DELETE">
                                 	<button onclick="return confirm('Bạn có chắc muốn xóa chương này?');" class="item"><i class="fa-solid fa-trash-can"></i></button>
                                 </form>
@@ -66,19 +67,37 @@
     </div>
 </div>
 <div th:if="${totalPage > 0 && currentPage <= totalPage}" class="row">
-	<div class="col col-md-12">
-		<nav>
-			<ul th:with="query=${keyword != null ? '?keyword=' + keyword + '&' : '?'}" class="pagination justify-content-center">
-				<li th:if="${currentPage > 1}" class="page-item">
-					<a th:href="@{${query} + 'page=' + ${currentPage - 1}}" class="page-link"><<</a>
-				</li>
-				<li th:each="i : ${#numbers.sequence(1, totalPage)}" th:classappend="${currentPage == i ? 'active' : ''}" class="page-item">
+    <div class="col col-md-12">
+        <nav>
+            <ul th:with="query=${keyword != null ? '?keyword=' + keyword + '&' : '?'}" class="pagination justify-content-center">
+
+                <li th:if="${currentPage > 1}" class="page-item">
+                    <a th:href="@{${query} + 'page=' + ${currentPage - 1}}" class="page-link"><<</a>
+                </li>
+
+                <li th:if="${currentPage > 3}" class="page-item">
+                    <a th:text="1" th:href="@{${query} + 'page=' + 1}" class="page-link"></a>
+                </li>
+                <li th:if="${currentPage > 4}" class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+
+                <li th:each="i : ${#numbers.sequence((currentPage - 2 >= 1) ? (currentPage - 2) : 1, (currentPage + 2 <= totalPage) ? (currentPage + 2) : totalPage)}"
+					th:classappend="${currentPage == i ? 'active' : ''}" class="page-item">
 					<a th:text="${i}" th:href="@{${query} + 'page=' + ${i}}" class="page-link"></a>
 				</li>
-				<li th:if="${currentPage < totalPage}" class="page-item">
-					<a th:href="@{${query} + 'page=' + ${currentPage + 1}}" class="page-link">>></a>
-				</li>
-			</ul>
-		</nav>
-	</div>
+
+                <li th:if="${currentPage < totalPage - 3}" class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                <li th:if="${currentPage < totalPage - 2}" class="page-item">
+                    <a th:text="${totalPage}" th:href="@{${query} + 'page=' + ${totalPage}}" class="page-link"></a>
+                </li>
+
+                <li th:if="${currentPage < totalPage}" class="page-item">
+                    <a th:href="@{${query} + 'page=' + ${currentPage + 1}}" class="page-link">>></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>

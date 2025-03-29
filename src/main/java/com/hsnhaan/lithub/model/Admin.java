@@ -16,7 +16,7 @@ public class Admin {
 	private String username;
 	private String full_name;
 	private String password;
-	private boolean role;
+	private String role;
 	
 	public Admin() {}
 
@@ -52,11 +52,11 @@ public class Admin {
 		this.password = password;
 	}
 
-	public boolean getRole() {
+	public String getRole() {
 		return role;
 	}
 
-	public void setRole(boolean role) {
+	public void setRole(String role) {
 		this.role = role;
 	}
 	

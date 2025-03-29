@@ -1,0 +1,98 @@
+<header class="header d-none d-lg-block">
+    <!-- place navbar here -->
+    <nav class="navbar navbar-expand-lg navbar-dark header__navbar p-md-0">
+        <div class="container">
+            <a class="navbar-brand" href="/trang-chu">
+			    <img src="/images/logo/logo.png" alt="Logo LitHub" class="img-fluid rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+			</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Thể loại
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-custom">
+                            <li th:each="genre : ${genres}"><a th:text="${genre.name}" th:href="@{/the-loai/{slug}(slug=${genre.slug})}" class="dropdown-item"></a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <form class="me-3 d-flex header__form-search" action="/tim-kiem" method="GET">
+                    <input class="form-control search-story" type="text" placeholder="Tìm kiếm" name="keyword"
+                        th:value="${keyword != null ? keyword : ''}">
+                    <button class="btn" type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+                <div th:unless="${session.USER_SESSION != null}" class="d-flex">
+	                <a href="/dang-nhap" class="btn btn-outline-light me-2">Đăng nhập</a>
+	                <a href="/dang-ky" class="btn btn-primary">Đăng ký</a>
+	            </div>
+	            <div th:if="${session.USER_SESSION != null}" class="d-flex">
+	                <a th:text="${session.USER_SESSION.username}"
+	                	th:href="@{/tai-khoan}" 
+	                	class="btn btn-outline-light me-2"></a>
+            	</div>
+            </div>
+        </div>
+    </nav>
+</header>
+<div class="header-mobile d-sm-block d-lg-none">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/trang-chu">
+			    <img src="images/logo/logo.png" alt="Logo LitHub" class="img-fluid rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+			</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="offcanvas offcanvas-end text-bg-dark w-75" tabindex="-1" id="offcanvasDarkNavbar"
+                aria-labelledby="offcanvasDarkNavbarLabel">
+                <div class="offcanvas-header">
+                    <img src="/images/logo/logo.png" alt="Logo LitHub" class="img-fluid rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Close"></button>
+                </div>
+                <div th:unless="${session.USER_SESSION != null}" class="d-flex">
+	                <a href="/dang-nhap" class="btn btn-outline-light me-2">Đăng nhập</a>
+	                <a href="/dang-ky" class="btn btn-primary">Đăng ký</a>
+            	</div>
+            	<div th:if="${session.USER_SESSION != null}" class="d-flex">
+	                <a th:text="${session.USER_SESSION.username}"
+	                	th:href="@{/tai-khoan}" 
+	                	class="btn btn-outline-light me-2"></a>
+            	</div>
+                <div class="offcanvas-body">
+                    <ul class="navbar-nav justify-content-end flex-grow-1 pe-3 mb-3">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="https://suustore.com/#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                Thể loại
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-custom">
+                                <li th:each="genre : ${genres}"><a class="dropdown-item" th:href="@{/the-loai/{slug}(slug=${genre.slug})}" th:text="${genre.name}"></a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <form class="d-flex header__form-search" action="/tim-kiem" method="GET">
+                        <input class="form-control search-story" type="text" placeholder="Tìm kiếm" name="keyword">
+                        <button class="btn" type="submit">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+<div class="bg-light header-bottom">
+    <div class="container py-1">
+        <p class="mb-0">Từng dòng chữ vẽ nên câu chuyện!</p>
+    </div>
+</div>

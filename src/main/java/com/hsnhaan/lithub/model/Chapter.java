@@ -1,6 +1,6 @@
 package com.hsnhaan.lithub.model;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,7 +20,7 @@ public class Chapter {
 	private String title;
 	private int chapter_number;
 	private String content;
-	private Instant created_at;
+	private LocalDate created_at;
 	@ManyToOne
 	@JoinColumn(name = "story_id")
 	private Story story;
@@ -59,11 +59,11 @@ public class Chapter {
 		this.content = content;
 	}
 
-	public Instant getCreated_at() {
+	public LocalDate getCreated_at() {
 		return created_at;
 	}
 
-	public void setCreated_at(Instant created_at) {
+	public void setCreated_at(LocalDate created_at) {
 		this.created_at = created_at;
 	}
 

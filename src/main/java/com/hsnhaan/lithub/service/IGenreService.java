@@ -13,7 +13,6 @@ public interface IGenreService {
 	Genre getById(int id);
 	List<Genre> getByIds(List<Integer> ids);
 	Optional<Genre> getBySlug(String slug);
-	List<Genre> search(String keyword);
 	Page<Genre> getAll(int page, int limit);
 	Page<Genre> search(String keyword, int page, int limit);
 	long countByIds(List<Integer> ids);

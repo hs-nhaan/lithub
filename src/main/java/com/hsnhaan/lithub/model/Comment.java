@@ -1,7 +1,5 @@
 package com.hsnhaan.lithub.model;
 
-import java.time.Instant;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +16,6 @@ public class Comment {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String content;
-	private Instant created_at;
 	@ManyToOne
 	@JoinColumn(name = "story_id")
 	private Story story;
@@ -42,14 +39,6 @@ public class Comment {
 
 	public void setContent(String content) {
 		this.content = content;
-	}
-
-	public Instant getCreated_at() {
-		return created_at;
-	}
-
-	public void setCreated_at(Instant created_at) {
-		this.created_at = created_at;
 	}
 
 	public Story getStory() {

@@ -7,7 +7,7 @@
 
     <!-- Title Page-->
     <title th:text="${titlePage}"></title>
-
+	<link rel="shortcut icon" href="/images/logo/logo.png" type="image/x-icon">
     <!-- Fontfaces CSS-->
     <link href="/admin/css/font-face.css" rel="stylesheet" media="all">
     <link href="/admin/css/material-design-iconic-font.min.css" rel="stylesheet" media="all">
@@ -35,8 +35,8 @@
             <div class="header-mobile__bar">
                 <div class="container-fluid">
                     <div class="header-mobile-inner">
-                        <a class="logo" href="index.html">
-                            <img src="images/icon/logo.png" alt="CoolAdmin" />
+                        <a class="logo" href="/admin/account">
+                            <img width="50" height="50" src="/images/logo/logo.png" />
                         </a>
                         <button class="hamburger hamburger--slider" type="button">
                             <span class="hamburger-box">
@@ -49,10 +49,18 @@
             <nav class="navbar-mobile">
                 <div class="container-fluid">
                     <ul class="navbar-mobile__list list-unstyled">
-                        <li>
-                            <a  href="#">Dashboard</a>
+                        <li th:if="${session.ADMIN_SESSION.role == 'SUPER_ADMIN'}" class="has-sub">
+                            <a class="js-arrow" href="/admin/account">Tài khoản</a>
+                            <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
+                                <li>
+                                    <a href="/admin/account">Danh sách</a>
+                                </li>
+                                <li>
+                                    <a href="/admin/account/add">Thêm</a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="has-sub">
+                        <li th:if="${session.ADMIN_SESSION.role == 'SUPER_ADMIN'}" class="has-sub">
                             <a class="js-arrow" href="/admin/genre">Thể loại</a>
                             <ul class="navbar-mobile-sub__list list-unstyled js-sub-list">
                                 <li>
@@ -74,7 +82,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li>
+                        <li th:if="${session.ADMIN_SESSION.role == 'SUPER_ADMIN'}">
                         	<a href="/admin/user">Người dùng</a>
                         </li>
                     </ul>
@@ -87,16 +95,25 @@
         <aside class="menu-sidebar d-none d-lg-block">
             <div class="logo">
                 <a href="#">
-                    <img src="images/icon/logo.png" alt="Cool Admin" />
+                    <img width="60" height="60" src="/images/logo/logo.png" alt="Cool Admin" />
                 </a>
             </div>
             <div class="menu-sidebar__content js-scrollbar1">
                 <nav class="navbar-sidebar">
                     <ul class="list-unstyled navbar__list">
-                        <li>
-                            <a href="/admin"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+                        <li th:if="${session.ADMIN_SESSION.role == 'SUPER_ADMIN'}" class="has-sub">
+                            <a class="js-arrow" href="/admin/account">
+                                <i class="fa-solid fa-lock-open"></i>Tài khoản</a>
+                            <ul class="list-unstyled navbar__sub-list js-sub-list">
+                                <li>
+                                    <a href="/admin/account">Danh sách</a>
+                                </li>
+                                <li>
+                                    <a href="/admin/account/add">Thêm</a>
+                                </li>
+                            </ul>
                         </li>
-                        <li class="has-sub">
+                        <li th:if="${session.ADMIN_SESSION.role == 'SUPER_ADMIN'}" class="has-sub">
                             <a class="js-arrow" href="/admin/genre">
                                 <i class="fa-solid fa-tags"></i>Thể loại</a>
                             <ul class="list-unstyled navbar__sub-list js-sub-list">
@@ -120,7 +137,7 @@
                                 </li>
                             </ul>
                         </li>
-                        <li>
+                        <li th:if="${session.ADMIN_SESSION.role == 'SUPER_ADMIN'}">
                             <a href="/admin/user"><i class="fa-solid fa-user"></i>Người dùng</a>
                         </li>
                     </ul>
@@ -135,33 +152,24 @@
             <header class="header-desktop">
                 <div class="section__content section__content--p30">
                     <div class="container-fluid">
-                        <div class="header-wrap">
-                            <div class="header-button">
+                        <div class="header-wrap justify-content-end">
+                            <div class="header-button justify-content-end">
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu">
-                                        <div class="image">
-                                            <img src="images/icon/avatar-01.jpg" alt="John Doe" />
-                                        </div>
                                         <div class="content">
-                                            <a class="js-acc-btn" href="#">john doe</a>
+                                            <a th:text="${session.ADMIN_SESSION.full_name}" class="js-acc-btn" href="#"></a>
                                         </div>
                                         <div class="account-dropdown js-dropdown">
                                             <div class="info clearfix">
-                                                <div class="image">
-                                                    <a href="#">
-                                                        <img src="images/icon/avatar-01.jpg" alt="John Doe" />
-                                                    </a>
-                                                </div>
                                                 <div class="content">
                                                     <h5 class="name">
-                                                        <a href="#">hs.nhaan</a>
+                                                        <a th:text="${session.ADMIN_SESSION.username}" href="#" style="text-transform: none !important;"></a>
                                                     </h5>
-                                                    <span class="email">nguyentrunghieunhan264@gmail.com</span>
                                                 </div>
                                             </div>
                                             <div class="account-dropdown__footer">
-                                                <a href="#">
-                                                    <i class="zmdi zmdi-power"></i>Logout</a>
+                                                <a href="/admin/logout">
+                                                    <i class="fa-solid fa-right-from-bracket"></i>Logout</a>
                                             </div>
                                         </div>
                                     </div>

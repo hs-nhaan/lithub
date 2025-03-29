@@ -3,9 +3,8 @@ package com.hsnhaan.lithub.service.Implement;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,6 @@ public class GenreServiceImpl implements IGenreService {
 
 	private final GenreDAO genreDAO;
 	
-	@Autowired
 	public GenreServiceImpl(GenreDAO genreDAO ) {
 		this.genreDAO = genreDAO;
 	}
@@ -49,11 +47,6 @@ public class GenreServiceImpl implements IGenreService {
 	}
 
 	@Override
-	public List<Genre> search(String keyword) {
-		return genreDAO.findByNameContaining(keyword);
-	}
-
-	@Override
 	public Page<Genre> getAll(int page, int limit) {
 		Pageable pageable = PageRequest.of(page - 1, limit);
 		return genreDAO.findAll(pageable);
@@ -61,15 +54,8 @@ public class GenreServiceImpl implements IGenreService {
 
 	@Override
 	public Page<Genre> search(String keyword, int page, int limit) {
-		List<Genre> genres =search(keyword);
-		
 		Pageable pageable = PageRequest.of(page - 1, limit);
-		int start = (int) pageable.getOffset();
-		int end = Math.min(start + pageable.getPageSize(), genres.size());
-		
-		List<Genre> subGenres = genres.subList(start, end);
-		
-		return new PageImpl<Genre>(subGenres, pageable, genres.size());
+		return genreDAO.findByNameContaining(keyword, pageable);
 	}
 	
 	@Override
@@ -81,31 +67,32 @@ public class GenreServiceImpl implements IGenreService {
 	public void save(Genre genre) {
 		genre.setSlug(StringHelper.toSlug(genre.getName()));
 		genre.setName(StringHelper.toTitleCase(genre.getName()));
-		validate(genre, true);
+		validate(genre, null, true);
 		genreDAO.save(genre);
 	}
 
 	@Override
-	public Genre update(String slugS, String name) {
-		Genre genre = Optional.ofNullable(genreDAO.findBySlug(slugS)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+	public Genre update(String slug, String name) {
+		Genre genre = Optional.ofNullable(genreDAO.findBySlug(slug)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		String odlName = genre.getName();
 		genre.setSlug(StringHelper.toSlug(name));
 		genre.setName(StringHelper.toTitleCase(name));
-		validate(genre, false);
+		validate(genre, odlName, false);
 		return genreDAO.save(genre);
 	}
-
+	
 	@Override
 	public void delete(String slug) {
-		Genre genre = Optional.ofNullable(genreDAO.findBySlug(slug)).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Genre genre = getBySlug(slug).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		genreDAO.delete(genre);
 	}
 	
-	private void validate(Genre genre, boolean isNew) {
-		if (!StringUtils.hasText(genre.getName()))
-			throw new RuntimeException("Tên thể loại không được để trống");
-		if (isNew || !genreDAO.findById(genre.getId()).map(g -> g.getName().equals(genre.getName())).orElse(false))
+	private void validate(Genre genre, String oldName, boolean isNew) {
+		if (!StringUtils.hasText(genre.getName()) || genre.getName().length() > 255)
+			throw new IllegalArgumentException("Tên thể loại không hợp lệ");
+		if (isNew || !oldName.equals(genre.getName()))
 			if (genreDAO.existByName(genre.getName()))
-				throw new RuntimeException("Tên thể loại đã tồn tại");
+				throw new DuplicateKeyException("Tên thể loại đã tồn tại");
 	}
 
 }

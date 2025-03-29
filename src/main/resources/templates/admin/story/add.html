@@ -20,6 +20,7 @@
 	    </div>
 	    <div class="card-body card-block">
 	        <form action="/admin/story/create" method="post" enctype="multipart/form-data" class="form-horizontal">
+	        	<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 	            <div class="row form-group">
 	                <div class="col col-md-3">
 	                    <label for="title" class=" form-control-label">Tên truyện</label>
@@ -43,7 +44,7 @@
 	                </div>
 	                <div class="col col-md-9">
 	                    <select required="required" name="genreIds" id="multiple-select" class="form-control" style="height: 200px;" multiple="multiple">
-	                    	<option th:each="genre : ${genres}" th:value="${genre.getId()}" th:text="${genre.getName()}"></option>
+	                    	<option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
 	                    </select>
 	                    <small class="help-block form-text">Có thể chọn nhiều thể loại</small>
 	                </div>
