@@ -52,6 +52,15 @@
 	                    <small class="help-block form-text">Có thể chọn nhiều thể loại</small>
 	                </div>
 	            </div>
+	            <div class="row form-group">
+	            	<div class="col col-md-3">
+	            		<label for="genreIds" class=" form-control-label">Trạng thái</label>
+	            	</div>
+	            	<div class="col col-md-9">
+	            		<input class="form-check-input" th:field="*{story.status}" type="checkbox" name="status" value="true">
+	            		Đã hoàn thành
+	            	</div>
+	            </div>
 	            <div th:if="!${readOnly}" class="row form-group">
 	                <div class="col col-md-3">
 	                    <label for="file" class=" form-control-label">Ảnh bìa</label>

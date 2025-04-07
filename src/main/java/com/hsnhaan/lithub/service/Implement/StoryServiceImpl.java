@@ -109,6 +109,7 @@ public class StoryServiceImpl implements IStoryService {
 		oldStory.setSlug(StringHelper.toSlug(story.getTitle()));
 		oldStory.setTitle(StringHelper.toTitleCase(story.getTitle()));
 		oldStory.setDescription(story.getDescription());
+		oldStory.setStatus(story.getStatus());
 		if (genreIds == null || genreIds.isEmpty())
 			throw new IllegalArgumentException("Phải chọn ít nhất một thể loại");
 		oldStory.setGenres(new HashSet<Genre>(genreSvc.getByIds(genreIds)));
